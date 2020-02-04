@@ -54,6 +54,7 @@ func (v *I2C) write(buf []byte) (int, error) {
 	n,err := v.rc.Write(buf)
 	if err == nil {
 		v.rc.Sync()
+		fmt.Println("sync")
 	}
 	return n,err
 }
