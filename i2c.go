@@ -51,7 +51,11 @@ func (v *I2C) GetAddr() uint8 {
 }
 
 func (v *I2C) write(buf []byte) (int, error) {
-	return v.rc.Write(buf)
+	n,err := v.rc.Write(buf)
+	if err == nil {
+		v.rc.Sync()
+	}
+	return n,err
 }
 
 // WriteBytes send bytes to the remote I2C-device. The interpretation of
