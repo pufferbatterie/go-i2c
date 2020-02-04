@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"os"
 	"syscall"
+	"sync"
 )
 
 // I2C represents a connection to I2C-device.
@@ -21,6 +22,7 @@ type I2C struct {
 	addr uint8
 	bus  int
 	rc   *os.File
+	mu *sync.Mutex
 }
 
 // NewI2C opens a connection for I2C-device.
@@ -36,7 +38,7 @@ func NewI2C(addr uint8, bus int) (*I2C, error) {
 	if err := ioctl(f.Fd(), I2C_SLAVE, uintptr(addr)); err != nil {
 		return nil, err
 	}
-	v := &I2C{rc: f, bus: bus, addr: addr}
+	v := &I2C{rc: f, bus: bus, addr: addr, mu: &sync.Mutex{}}
 	return v, nil
 }
 
@@ -51,11 +53,14 @@ func (v *I2C) GetAddr() uint8 {
 }
 
 func (v *I2C) write(buf []byte) (int, error) {
+	fmt.Println("sync")
+	v.mu.Lock()
 	n,err := v.rc.Write(buf)
 	if err == nil {
 		v.rc.Sync()
-		fmt.Println("sync")
+		lg.Debugf("sync") 
 	}
+	v.mu.Unlock()
 	return n,err
 }
 
