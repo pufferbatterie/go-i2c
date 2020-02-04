@@ -31,7 +31,7 @@ type I2C struct {
 // register address to read from, either write register
 // together with the data in case of write operations.
 func NewI2C(addr uint8, bus int) (*I2C, error) {
-	f, err := os.OpenFile(fmt.Sprintf("/dev/i2c-%d", bus), os.O_RDWR, 0600)
+	f, err := os.OpenFile(fmt.Sprintf("/dev/i2c-%d", bus), I2C_RDWR, 0600)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,6 @@ func (v *I2C) GetAddr() uint8 {
 }
 
 func (v *I2C) write(buf []byte) (int, error) {
-	fmt.Println("sync")
 	v.mu.Lock()
 	n,err := v.rc.Write(buf)
 	if err == nil {
